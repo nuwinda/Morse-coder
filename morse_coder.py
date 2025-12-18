@@ -13,7 +13,7 @@ MORSE_CODE = {
     # Common punctuation
     ".-.-.-":".","--..--":",","..--..":"?",".----.":"'",
     "-.-.--":"!","-..-.":"/","-.--.":"(","-.--.-":")",
-    ".-...":"&",":---:":";", "-...-":"=",".-.-.":"+","-....-":"-",
+    ".-...":"&","-.-.-.":";", "-...-":"=",".-.-.":"+","-....-":"-",
     "..--.-":"_",".-..-.":'"',".--.-.":"@"
 }
 
@@ -28,7 +28,18 @@ def decode_morse(morse: str) -> str:
         return ""
     # Normalize word separators: accept '/' or 3+ spaces
     morse = morse.strip()
-    morse = morse.replace(" / ", "   ")
+    import re
+    morse = morse.replace("/", "   ")
+    # normalize Unicode punctuation to ASCII equivalents
+    morse = morse.replace("’", "'").replace("‘", "'")
+    morse = morse.replace("–", "-").replace("—", "-").replace("−", "-")
+    # remove any characters other than dot, dash and whitespace (these are
+    # almost certainly stray characters); keep runs of spaces so we can
+    # detect word separators later
+    morse = re.sub(r"[^.\-\s]", " ", morse)
+    # collapse whitespace runs: 3+ => word separator (3 spaces), 1-2 => single
+    morse = re.sub(r"\s+", lambda m: "   " if len(m.group(0)) >= 3 else " ", morse)
+    morse = morse.strip()
     words = morse.split("   ")
     decoded_words = []
     for w in words:

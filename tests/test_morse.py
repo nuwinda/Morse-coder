@@ -20,3 +20,9 @@ def test_unknown_sequence():
 
 def test_empty():
     assert decode_morse("") == ""
+
+
+def test_typographic_apostrophe_normalization():
+    # Input contains a typographic apostrophe (U+2019) inside a token; it
+    # should be cleaned and decoded correctly
+    assert decode_morse(".----. ..’ --") == "'IM"
